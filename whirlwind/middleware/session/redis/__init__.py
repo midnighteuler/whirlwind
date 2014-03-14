@@ -120,7 +120,7 @@ class Session():
 		#generate a session id
 		self.__generate_session_id()
 		#insert the new doc into mongo
-		print "creating new session"
+		print("creating new session")
 		#store the session_id in a secure cookie
 		self.data = {}
 		

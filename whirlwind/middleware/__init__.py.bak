@@ -37,14 +37,14 @@ class MiddlewareManager():
                 
                 try:
                     mod = __import__(modname, globals(), locals(), [clsname], -1)
-                except ImportError as ex:
-                    print("module __import__ failed", ex)
+                except ImportError, ex:
+                    print "module __import__ failed", ex
                 
                 try:
                     cls = getattr(mod, clsname)
                     inst = cls(self.request)
-                except AttributeError as ex:
-                    print("cant instantiate cls", ex)
+                except AttributeError, ex:
+                    print "cant instantiate cls", ex
                 
                 if hasattr(inst,'view_hook'):
                     self.view_middleware.append(inst)

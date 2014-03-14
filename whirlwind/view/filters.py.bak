@@ -28,7 +28,7 @@ class Filters():
             return None
         if val == 0:
             return val
-        if isinstance(val, str) and len(val) == 0:
+        if isinstance(val, basestring) and len(val) == 0:
             return None
         if isinstance(val, dict) and len(val) == 0:
             return None
@@ -59,7 +59,7 @@ class Filters():
     def is_true(val):
         if not val:
             return False
-        if isinstance(val, str):
+        if isinstance(val, basestring):
             if val == 'True' or val == 'true' or val == 'on':
                 return True
             return False
@@ -115,7 +115,7 @@ class Filters():
             utc_dt = utc_dt.replace(tzinfo=from_zone)
             return utc_dt.astimezone(to_zone)
         except Exception:
-            print(sys.exc_info())
+            print sys.exc_info()
             return None
 
     @staticmethod
@@ -259,10 +259,10 @@ class Cycler():
     def cycle(values, name='default'):
         if name in Cycler.cycle_registry:
             try:
-                return next(Cycler.cycle_registry[name])
+                return Cycler.cycle_registry[name].next()
             except StopIteration:
                 Cycler.cycle_registry[name] = iter(values)
-                return next(Cycler.cycle_registry[name])
+                return Cycler.cycle_registry[name].next()
         else:
             Cycler.cycle_registry[name] = iter(values)
-            return next(Cycler.cycle_registry[name])
+            return Cycler.cycle_registry[name].next()

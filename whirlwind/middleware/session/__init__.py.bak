@@ -118,7 +118,7 @@ class Session():
 		#generate a session id
 		self.__generate_session_id()
 		#insert the new doc into mongo
-		print("creating new session")
+		print "creating new session"
 		#store the session_id in a secure cookie
 		self.data = {
 			'_id':self.session_id,
@@ -135,13 +135,13 @@ class Session():
 		self.data = Mongo.db.ui.sessions.find_one({'_id': self.session_id})
 		
 		if not self.data:
-			print("session not found in database")
+			print "session not found in database"
 			return False
 		
 		#check if this session has expired.
-		print("session expires:", self.data['expires'])
+		print "session expires:", self.data['expires']
 		if not self.data['expires'] or self.data['expires'] < datetime.datetime.utcnow() :
-			print("SESSION EXPIRED!")
+			print "SESSION EXPIRED!"
 			self.destroy() #delete it from the database..
 			return False
 		

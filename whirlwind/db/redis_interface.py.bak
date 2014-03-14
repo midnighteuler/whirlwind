@@ -24,6 +24,6 @@ class Redis(Singleton):
 			)
 		
 		if 'debug' in kwargs:
-			print(r)
+			print r
 		
 		Redis.db = r

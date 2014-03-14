@@ -11,11 +11,11 @@ class Memcache(Singleton):
 	def create(**kwargs):
 		mc = memcache.Client(kwargs['host'].split(','), debug=0)
 		if 'debug' in kwargs:
-			print(kwargs)
-			print(mc)
+			print kwargs
+			print mc
 		
 		Memcache.db = mc
-		print(Memcache.db)
+		print Memcache.db
 		
 	@staticmethod
 	def get(key):

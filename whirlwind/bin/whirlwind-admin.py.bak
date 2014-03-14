@@ -76,7 +76,7 @@ def main():
     if options.generate_cookie_secret:
         import base64
         import uuid
-        print((base64.b64encode(uuid.uuid4().bytes + uuid.uuid4().bytes)))
+        print(base64.b64encode(uuid.uuid4().bytes + uuid.uuid4().bytes))
 
     if options.generate_model_indexes:
 
@@ -108,15 +108,15 @@ def main():
             __import__(modname)
 
         #loop over the registered documents
-        for doc, obj in Mongo.db.connection._registered_documents.items():
+        for doc, obj in Mongo.db.connection._registered_documents.iteritems():
             try:
 
-                print('Attempting to create index for ', doc)
+                print 'Attempting to create index for ', doc
                 #generate the index for this doc on the collection
                 obj.generate_index(Mongo.db.connection[conf.settings.db_name][obj._obj_class.__collection__])
-            except Exception as e:
+            except Exception, e:
                 #barf up an error on fail
-                print('Could not create index for %s - exception: %s' % (doc, e.message))
+                print 'Could not create index for %s - exception: %s' % (doc, e.message)
 
 
 if __name__ == "__main__":

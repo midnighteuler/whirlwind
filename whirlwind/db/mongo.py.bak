@@ -36,6 +36,6 @@ class Mongo(Singleton):
         db.connection = Connection(kwargs['host'],kwargs['port'])
         Mongo.db = db
         if 'debug' in kwargs:
-            print(Mongo.db.connection)
+            print Mongo.db.connection
        
         

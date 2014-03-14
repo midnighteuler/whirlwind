@@ -1,13 +1,13 @@
 class TestMiddleware():
 
     def __init__(self, request):
-        print "TestMiddleware loaded"
+        print("TestMiddleware loaded")
 
     def request_hook(self):
-        print "TestMiddleware.request_hook called"
+        print("TestMiddleware.request_hook called")
 
     def response_hook(self):
-        print "TestMiddleware.response_hook called"
+        print("TestMiddleware.response_hook called")
 
     def view_hook(self, view):
-        print "TestMiddleware.view_hook called"
+        print("TestMiddleware.view_hook called")

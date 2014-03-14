@@ -18,8 +18,8 @@ class Flash(defaultdict):
     '''
     def __str__(self):        
         if len(self) > 0:
-            if len(list(self.values())[0]) > 0:
-                return list(self.values())[0][0]
+            if len(self.values()[0]) > 0:
+                return self.values()[0][0]
         return ""
     
     '''
@@ -42,5 +42,5 @@ class Flash(defaultdict):
     '''    
     evaluate to True if there is at least one non-empty message
     '''
-    def __bool__(self):
+    def __nonzero__(self):
         return len(str(self)) > 0    

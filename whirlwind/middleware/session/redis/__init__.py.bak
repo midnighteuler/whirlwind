@@ -1,13 +1,22 @@
 import pymongo, uuid, datetime
 from datetime import timedelta
 from whirlwind.db.mongo import Mongo
+from whirlwind.db.redis_interface import Redis
+from application.models.user import User
+import redis
 
 try:
+	import simplejson as json
 	from config.settings import cookie_domain
 except ImportError:
-	pass
+	import json
+
 '''
-MongoDb Session backend for Tornado 
+Redis Session backend for Tornado 
+
+
+sudo easy_install redis
+
 '''
 class Session():
 	
@@ -15,8 +24,7 @@ class Session():
 	constructor... load or create the session
 	'''
 	def __init__(self,request_handler):
-		#create a data changed flag
-		self.data_changed = False
+		
 		self.saved = False
 		
 		#look for a sessionId
@@ -34,7 +42,7 @@ class Session():
 #		print self.data
 		
 	'''
-	destructor... updates the session db in mongo if our session data has been changed
+	destructor... updates the session db in redis if our session data has been changed
 	'''
 	def __del__(self):
 #		print "session destruction" 
@@ -55,24 +63,21 @@ class Session():
 		if self['keep_logged_in'] :
 			updateHours = 24*7 #if you checked keep me logged in then we roll by a week
 		
-		self.data['expires'] = datetime.datetime.utcnow() + timedelta(hours=updateHours)
-		
-		if self.data_changed:
-			#update the timestamp for rolling session timeout
-			#update the session data in mongo
-			Mongo.db.ui.sessions.save(self.data)
-		else :
-			# just update the expires field so rolling timeout works.
-			Mongo.db.ui.sessions.update({'_id':self.session_id},{'$set' : {'expires' : self.data['expires']}})	
-#			print "SAVING session expires", self.data['expires']
+		expires = datetime.datetime.utcnow() + timedelta(hours=updateHours)
+		# Save the data as a json string
+		Redis.db.set(self.session_id, json.dumps(self.data));
+		# Update the ttl
+		Redis.db.expireat(self.session_id, expires)
 		self.saved = True
-		self.data_changed = False
 
 
 	'''
 	get a value from our session
 	'''
 	def __getitem__(self, key):
+		if key == '_id' :
+			return self.session_id
+		
 		try:
 			return self.data[key]
 		except KeyError:
@@ -86,9 +91,7 @@ class Session():
 		if not self.session_id:
 			#no session yet so lets create a session
 			self.__create()
-		
 		self.data[key] = value
-		self.data_changed = True
 		self.saved = False
 		
 	'''
@@ -96,7 +99,6 @@ class Session():
 	'''
 	def __delitem__(self, key):
 		del self.data[key]
-		self.data_changed = True
 		self.saved = False
 	
 	'''
@@ -118,13 +120,9 @@ class Session():
 		#generate a session id
 		self.__generate_session_id()
 		#insert the new doc into mongo
-		print("creating new session")
+		print "creating new session"
 		#store the session_id in a secure cookie
-		self.data = {
-			'_id':self.session_id,
-			'expires':datetime.datetime.utcnow() + timedelta(hours=8)
-		}
-		Mongo.db.ui.sessions.insert(self.data)
+		self.data = {}
 		
 	'''
 	lookup a session from the db based on the session id
@@ -132,25 +130,13 @@ class Session():
 	returns true on successful lookup, false if expired.
 	'''
 	def __lookup_session(self, request_handler):
-		self.data = Mongo.db.ui.sessions.find_one({'_id': self.session_id})
-		
-		if not self.data:
-			print("session not found in database")
+		val = Redis.db.get(self.session_id)
+		if not val :
 			return False
-		
-		#check if this session has expired.
-		print("session expires:", self.data['expires'])
-		if not self.data['expires'] or self.data['expires'] < datetime.datetime.utcnow() :
-			print("SESSION EXPIRED!")
-			self.destroy() #delete it from the database..
-			return False
-		
+
+		self.data = json.loads(val)		
 		#load the user
-		if self['lookup_key']:
-			key = self['lookup_key']
-			user = Mongo.db.ui.users.User.find_one({key: self[key]})
-			request_handler.set_current_user(user)
-		elif self['username']:
+		if self['username']:
 			user = Mongo.db.ui.users.User.find_one({'_id': self['username']})
 			request_handler.set_current_user(user)
 
@@ -167,6 +153,5 @@ class Session():
 	destroys the current session.  deletes from the database. 
 	'''
 	def destroy(self):
-		Mongo.db.ui.sessions.remove({'_id': self.session_id})
-		self.data_changed = False
+		Redis.db.delete(self.session_id)
 		self.saved = True

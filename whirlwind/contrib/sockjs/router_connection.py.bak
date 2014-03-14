@@ -8,7 +8,7 @@ class RouterConnection(SockJSConnection):
 	__endpoints__ = {}
 
 	def on_open(self, info):
-		print('Router', repr(info))
+		print 'Router', repr(info)
 
 class ConnectionLoader(object):
 	

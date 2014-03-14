@@ -1,4 +1,4 @@
-import urllib.request, urllib.parse, urllib.error
+import urllib
 from tornado.web import HTTPError
 
 
@@ -9,7 +9,7 @@ def role_required(role):
                 if self.request.method == "GET":
                     url = self.get_login_url()
                     if "?" not in url:
-                        url += "?" + urllib.parse.urlencode(dict(next=self.request.uri))
+                        url += "?" + urllib.urlencode(dict(next=self.request.uri))
                     self.redirect(url)
                     return
                 raise HTTPError(403)

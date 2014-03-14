@@ -1,6 +1,6 @@
 #from tornado import web
 import hashlib
-import os, io, pycurl
+import os, StringIO, pycurl
 from tornado.web import *
 
 
@@ -8,7 +8,7 @@ import sys
 import threading
 import time
 import weakref
-from queue import Queue
+from Queue import Queue
 
 
 from tornado import ioloop
@@ -43,7 +43,7 @@ class ThreadedAction():
             self._method(self._controller, *self._args, **self._kwargs)
             if not self._controller._is_whirlwind_finished :
                 self._controller.finish()
-        except Exception as e :
+        except Exception,e :
             self._controller._handle_request_exception(e)
         
         
@@ -101,7 +101,7 @@ class ThreadPoolWorker(threading.Thread):
         while True:
             func, callback = self.tasks.get()
             try: func()
-            except Exception as e: print(e)
+            except Exception, e: print e
             if callback :
                 callback()
             self.tasks.task_done()        

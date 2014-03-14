@@ -23,16 +23,16 @@ def normalize(username):
 @Mongo.db.connection.register
 class User(Document):
     structure = {
-                 '_id':str,
-                 'email':str,
+                 '_id':unicode,
+                 'email':unicode,
                  'roles':list,
-                 'password':str,
+                 'password':unicode,
                  'created_at':datetime.datetime,
                  'history' : {
                               'last_login' : datetime.datetime,
-                              'num_logins' : int
+                              'num_logins' : long
                               },
-                 'timezone':str,
+                 'timezone':unicode,
                  'suspended_at':datetime.datetime,
                  }
     use_dot_notation=True
@@ -85,7 +85,7 @@ class User(Document):
     def has_role(self, role):
         if not self.get('roles', False):
             self['roles'] = []
-        if isinstance(role, str):
+        if isinstance(role, basestring):
             return role in self['roles']
         else:
             for r in role:

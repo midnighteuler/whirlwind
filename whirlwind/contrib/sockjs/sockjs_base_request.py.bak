@@ -10,7 +10,7 @@ class SockjsBaseRequest(SockJSConnection):
 		self.db = Mongo.db.ui
 
 	def send_message(self,message):
-		if isinstance(message, str):
+		if isinstance(message, basestring):
 			self.send(message)
 		else:
 			self.send(json.dumps(message))
