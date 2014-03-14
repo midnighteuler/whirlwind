@@ -36,7 +36,7 @@ class MiddlewareManager():
                 modname, clsname = self.split_name(mclass)
                 
                 try:
-                    mod = __import__(modname, globals(), locals(), [clsname], -1)
+                    mod = __import__(modname, globals(), locals(), [clsname], 0)
                 except ImportError as ex:
                     print("module __import__ failed", ex)
                 
